@@ -23,7 +23,7 @@ Grab the latest release from **[Releases](https://github.com/larosa023/Tide/rele
 | File | Size | Needs |
 | --- | --- | --- |
 | `Tide.exe` | ~75 MB | Nothing – runs on any 64-bit Windows 10/11 |
-| `Tide-small.exe` | ~1 MB | The [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) |
+| `Tide-small.exe` | ~0.5 MB | The [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) |
 
 There's no installer: put the .exe wherever you like (for example `C:\Program Files\Tide\`) and run it. Tide asks for administrator rights because reading per-app network activity and writing firewall rules both require them.
 
