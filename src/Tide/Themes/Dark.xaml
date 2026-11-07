@@ -1,0 +1,32 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="BgColor">#111113</Color>
+    <Color x:Key="SurfaceColor">#19191C</Color>
+    <Color x:Key="Surface2Color">#212125</Color>
+    <Color x:Key="HoverColor">#2A2A2F</Color>
+    <Color x:Key="LineColor">#2F2F35</Color>
+    <Color x:Key="TextColor">#EDEDEF</Color>
+    <Color x:Key="TextDimColor">#9A9AA3</Color>
+    <Color x:Key="AccentColor">#8B93FF</Color>
+    <Color x:Key="AccentTextColor">#0F1030</Color>
+    <Color x:Key="DownColor">#5CC8FF</Color>
+    <Color x:Key="UpColor">#FF8F6B</Color>
+    <Color x:Key="DangerColor">#F06262</Color>
+    <Color x:Key="WarnColor">#F2C14E</Color>
+    <SolidColorBrush x:Key="BgBrush" Color="{StaticResource BgColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="Surface2Brush" Color="{StaticResource Surface2Color}" />
+    <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
+    <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}" />
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}" />
+    <SolidColorBrush x:Key="TextDimBrush" Color="{StaticResource TextDimColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentTextBrush" Color="{StaticResource AccentTextColor}" />
+    <SolidColorBrush x:Key="DownBrush" Color="{StaticResource DownColor}" />
+    <SolidColorBrush x:Key="UpBrush" Color="{StaticResource UpColor}" />
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
+    <SolidColorBrush x:Key="WarnBrush" Color="{StaticResource WarnColor}" />
+    <SolidColorBrush x:Key="DownFillBrush" Color="{StaticResource DownColor}" Opacity="0.16" />
+    <SolidColorBrush x:Key="UpFillBrush" Color="{StaticResource UpColor}" Opacity="0.16" />
+    <SolidColorBrush x:Key="AccentFillBrush" Color="{StaticResource AccentColor}" Opacity="0.16" />
+</ResourceDictionary>

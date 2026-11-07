@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RootNamespace>Tide</RootNamespace>
+    <AssemblyName>Tide</AssemblyName>
+    <ApplicationIcon>Assets\tide.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.0.0</Version>
+    <Product>Tide</Product>
+    <Company>Anthony LaRosa</Company>
+    <Description>Lightweight per-app network monitor and firewall for Windows</Description>
+    <Copyright>Copyright © 2026 Anthony LaRosa</Copyright>
+    <!-- "full" = self-contained build, "small" = needs the .NET Desktop Runtime. The updater downloads the same flavor. -->
+    <TideFlavor Condition="'$(TideFlavor)' == ''">full</TideFlavor>
+    <TieredPGO>true</TieredPGO>
+    <ServerGarbageCollector>false</ServerGarbageCollector>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="TideFlavor" Value="$(TideFlavor)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\tide.ico" />
+  </ItemGroup>
+
+  <!-- WinForms is only used for the tray icon; keep its namespaces out of the global scope to avoid WPF name clashes. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,72 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Work out version
+        id: ver
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $v = $env:GITHUB_REF_NAME.Substring(1)
+          } else {
+            [xml]$proj = Get-Content src/Tide/Tide.csproj
+            $v = ($proj.Project.PropertyGroup | Where-Object { $_.Version } | Select-Object -First 1).Version
+            $v = "$v-ci.$env:GITHUB_RUN_NUMBER"
+          }
+          "version=$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Building Tide $v"
+
+      - name: Publish (self-contained)
+        run: >
+          dotnet publish src/Tide/Tide.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:TideFlavor=full
+          -p:Version=${{ steps.ver.outputs.version }} -o out/full
+
+      - name: Publish (small, needs .NET 10 Desktop Runtime)
+        run: >
+          dotnet publish src/Tide/Tide.csproj -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true -p:TideFlavor=small
+          -p:Version=${{ steps.ver.outputs.version }} -o out/small
+
+      - name: Collect release files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item out/full/Tide.exe dist/Tide.exe
+          Copy-Item out/small/Tide.exe dist/Tide-small.exe
+          foreach ($f in 'Tide.exe', 'Tide-small.exe') {
+            $hash = (Get-FileHash "dist/$f" -Algorithm SHA256).Hash.ToLower()
+            Set-Content -Path "dist/$f.sha256" -Value "$hash  $f" -NoNewline -Encoding ascii
+          }
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tide-${{ steps.ver.outputs.version }}
+          path: dist/*
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

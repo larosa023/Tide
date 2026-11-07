@@ -1,0 +1,130 @@
+<UserControl x:Class="Tide.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:Tide.Controls">
+    <Grid Margin="24,4,24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- ===== Header ===== -->
+        <DockPanel Margin="0,0,0,14">
+            <Border DockPanel.Dock="Right" Style="{StaticResource SegmentHost}" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Style="{StaticResource Segment}" GroupName="Range" Content="Day"
+                                 IsChecked="{Binding HistoryRange, Converter={StaticResource Equals}, ConverterParameter=Day}" />
+                    <RadioButton Style="{StaticResource Segment}" GroupName="Range" Content="Week"
+                                 IsChecked="{Binding HistoryRange, Converter={StaticResource Equals}, ConverterParameter=Week}" />
+                    <RadioButton Style="{StaticResource Segment}" GroupName="Range" Content="Month"
+                                 IsChecked="{Binding HistoryRange, Converter={StaticResource Equals}, ConverterParameter=Month}" />
+                </StackPanel>
+            </Border>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource GhostButton}" Command="{Binding PrevPeriodCommand}" ToolTip="Earlier">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE76B;" FontSize="12" />
+                </Button>
+                <Button Style="{StaticResource GhostButton}" Command="{Binding NextPeriodCommand}" ToolTip="Later" Margin="2,0,10,0">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE76C;" FontSize="12" />
+                </Button>
+                <TextBlock Style="{StaticResource H1}" Text="{Binding HistoryTitle}" VerticalAlignment="Center" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- ===== Totals ===== -->
+        <UniformGrid Grid.Row="1" Rows="1" Columns="3" Margin="0,0,0,12">
+            <Border Style="{StaticResource Card}" Margin="0,0,6,0">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Caption}" Text="DOWNLOADED" />
+                    <TextBlock Style="{StaticResource H1}" Foreground="{DynamicResource DownBrush}" Margin="0,6,0,0"
+                               Text="{Binding HistoryDown, Converter={StaticResource Bytes}}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="6,0">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Caption}" Text="UPLOADED" />
+                    <TextBlock Style="{StaticResource H1}" Foreground="{DynamicResource UpBrush}" Margin="0,6,0,0"
+                               Text="{Binding HistoryUp, Converter={StaticResource Bytes}}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="6,0,0,0">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Caption}" Text="APPS" />
+                    <TextBlock Style="{StaticResource H1}" Margin="0,6,0,0" Text="{Binding HistoryApps.Count}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- ===== Chart ===== -->
+        <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,12" Padding="16,10,16,10">
+            <c:BarChart Height="210" Buckets="{Binding HistoryBuckets}"
+                        DownBrush="{DynamicResource DownBrush}" UpBrush="{DynamicResource UpBrush}"
+                        GridBrush="{DynamicResource LineBrush}" LabelBrush="{DynamicResource TextDimBrush}"
+                        HoverBrush="{DynamicResource Surface2Brush}" TextBrush="{DynamicResource TextBrush}" />
+        </Border>
+
+        <!-- ===== Apps ===== -->
+        <Border Grid.Row="3" Style="{StaticResource Card}" Padding="6">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top" Margin="10,4,18,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="38" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="1" Style="{StaticResource Caption}" Text="APP" />
+                    <TextBlock Grid.Column="3" Style="{StaticResource Caption}" Text="DOWNLOAD" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Column="4" Style="{StaticResource Caption}" Text="UPLOAD" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Column="5" Style="{StaticResource Caption}" Text="TOTAL" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid>
+                    <ListBox ItemsSource="{Binding HistoryApps}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="38" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Width="26" Height="26" HorizontalAlignment="Left">
+                                        <Border CornerRadius="6" Background="{DynamicResource Surface2Brush}" />
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE7F8;" FontSize="13" HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource TextDimBrush}"
+                                                   Visibility="{Binding Icon, Converter={StaticResource Hidden}}" />
+                                        <Image Source="{Binding Icon}" Width="22" Height="22" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Path}" Style="{StaticResource Dim}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding Path}" />
+                                    </StackPanel>
+                                    <Grid Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Width="140" Height="6">
+                                        <Border CornerRadius="3" Background="{DynamicResource Surface2Brush}" />
+                                        <Border CornerRadius="3" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Left"
+                                                Width="{Binding Share, Converter={StaticResource ShareWidth}}" />
+                                    </Grid>
+                                    <TextBlock Grid.Column="3" Text="{Binding Down, Converter={StaticResource Bytes}}" HorizontalAlignment="Right"
+                                               VerticalAlignment="Center" Foreground="{DynamicResource DownBrush}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Up, Converter={StaticResource Bytes}}" HorizontalAlignment="Right"
+                                               VerticalAlignment="Center" Foreground="{DynamicResource UpBrush}" />
+                                    <TextBlock Grid.Column="5" Text="{Binding Total, Converter={StaticResource Bytes}}" HorizontalAlignment="Right"
+                                               VerticalAlignment="Center" FontWeight="SemiBold" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Style="{StaticResource Dim}" Text="No usage recorded for this period." HorizontalAlignment="Center"
+                               VerticalAlignment="Center" Visibility="{Binding HistoryApps.Count, Converter={StaticResource Hidden}}" />
+                </Grid>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

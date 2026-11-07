@@ -1,0 +1,24 @@
+<Application x:Class="Tide.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:Tide.Controls"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Slot 0 is the active theme; App.ApplyTheme swaps it. -->
+                <ResourceDictionary Source="Themes/Tide.xaml" />
+                <ResourceDictionary Source="Themes/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <c:BytesConverter x:Key="Bytes" />
+            <c:RateConverter x:Key="Rate" />
+            <c:AgoConverter x:Key="Ago" />
+            <c:VisibleConverter x:Key="Visible" />
+            <c:VisibleConverter x:Key="Hidden" Invert="True" />
+            <c:EqualsConverter x:Key="Equals" />
+            <c:PageConverter x:Key="Page" />
+            <c:ShareWidthConverter x:Key="ShareWidth" Max="140" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
