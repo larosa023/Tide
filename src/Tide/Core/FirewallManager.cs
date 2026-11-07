@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Tide.Core;
 
@@ -44,21 +43,36 @@ public sealed class FirewallManager
     private static string RuleName(string path, bool outbound) =>
         $"Tide – Block {(outbound ? "outbound" : "inbound")}: {path}";
 
-    /// <summary>Reads Tide's existing rules from Windows Firewall.</summary>
+    /// <summary>
+    /// Reads Tide's existing rules from Windows Firewall. Tide keeps its own list of blocked programs and
+    /// confirms each one by rule name (fast, and doesn't depend on enumerating hundreds of rules); it also
+    /// scans the full rule list once to pick up Tide rules the list doesn't know about.
+    /// </summary>
     public void Refresh()
     {
         var found = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         try
         {
             dynamic policy = Policy();
-            foreach (dynamic rule in policy.Rules)
+            foreach (var path in LoadList())
+                if (RuleExists(policy, RuleName(path, true)) || RuleExists(policy, RuleName(path, false)))
+                    found.Add(path);
+
+            try
             {
-                string? group = rule.Grouping;
-                if (group != RuleGroup) continue;
-                string? app = rule.ApplicationName;
-                int action = rule.Action;
-                if (!string.IsNullOrEmpty(app) && action == NET_FW_ACTION_BLOCK)
-                    found.Add(app);
+                foreach (dynamic rule in policy.Rules)
+                {
+                    string? group = rule.Grouping;
+                    if (group != RuleGroup) continue;
+                    string? app = rule.ApplicationName;
+                    int action = rule.Action;
+                    if (!string.IsNullOrEmpty(app) && action == NET_FW_ACTION_BLOCK)
+                        found.Add(app);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Write("Firewall rule scan: " + ex.Message);
             }
             LastError = null;
         }
@@ -73,7 +87,18 @@ public sealed class FirewallManager
             _blocked.Clear();
             _blocked.UnionWith(found);
         }
+        SaveList();
         Changed?.Invoke();
+    }
+
+    private static List<string> LoadList() => Json.Load<List<string>>(AppPaths.BlockedFile) ?? new List<string>();
+
+    private void SaveList()
+    {
+        List<string> list;
+        lock (_gate) list = new List<string>(_blocked);
+        list.Sort(StringComparer.OrdinalIgnoreCase);
+        Json.Save(AppPaths.BlockedFile, list);
     }
 
     public bool Block(string path)
@@ -85,6 +110,7 @@ public sealed class FirewallManager
             AddRule(policy, path, outbound: true);
             AddRule(policy, path, outbound: false);
             lock (_gate) _blocked.Add(path);
+            SaveList();
             LastError = null;
             Changed?.Invoke();
             return true;
@@ -104,6 +130,7 @@ public sealed class FirewallManager
             dynamic policy = Policy();
             RemoveRules(policy, path);
             lock (_gate) _blocked.Remove(path);
+            SaveList();
             LastError = null;
             Changed?.Invoke();
             return true;
@@ -142,16 +169,23 @@ public sealed class FirewallManager
         }
 
         // Also clear any Tide-group rule for this program that has a different name (e.g. renamed by the user).
-        var stray = new List<string>();
-        foreach (dynamic rule in policy.Rules)
+        try
         {
-            string? group = rule.Grouping;
-            string? app = rule.ApplicationName;
-            if (group == RuleGroup && string.Equals(app, path, StringComparison.OrdinalIgnoreCase))
-                stray.Add((string)rule.Name);
+            var stray = new List<string>();
+            foreach (dynamic rule in policy.Rules)
+            {
+                string? group = rule.Grouping;
+                string? app = rule.ApplicationName;
+                if (group == RuleGroup && string.Equals(app, path, StringComparison.OrdinalIgnoreCase))
+                    stray.Add((string)rule.Name);
+            }
+            foreach (var n in stray)
+                policy.Rules.Remove(n);
         }
-        foreach (var n in stray)
-            policy.Rules.Remove(n);
+        catch (Exception ex)
+        {
+            Log.Write("Firewall stray-rule cleanup: " + ex.Message);
+        }
     }
 
     private static bool RuleExists(dynamic policy, string name)

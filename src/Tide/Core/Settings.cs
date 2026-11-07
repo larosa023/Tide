@@ -13,6 +13,7 @@ public static class AppPaths
     public static string HistoryDir => Path.Combine(DataDir, "History");
     public static string SettingsFile => Path.Combine(DataDir, "settings.json");
     public static string KnownAppsFile => Path.Combine(DataDir, "known-apps.json");
+    public static string BlockedFile => Path.Combine(DataDir, "blocked.json");
     public static string AlertsFile => Path.Combine(DataDir, "alerts.json");
     public static string LogFile => Path.Combine(DataDir, "tide.log");
 

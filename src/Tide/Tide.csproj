@@ -24,6 +24,8 @@
     <ServerGarbageCollector>false</ServerGarbageCollector>
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
     <DebugType>embedded</DebugType>
+    <!-- WinForms is only used for the tray icon; DPI awareness is set in app.manifest for WPF. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
